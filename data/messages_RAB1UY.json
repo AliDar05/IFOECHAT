@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1776222732255,
+    "username": "gavin",
+    "avatar": "GA",
+    "text": "yow brow",
+    "type": "text",
+    "timestamp": "2026-04-15T03:12:12.255Z"
+  },
+  {
+    "id": 1776222747154,
+    "username": "gavin",
+    "avatar": "GA",
+    "type": "location",
+    "location": {
+      "lat": -3.29707386797066,
+      "lng": 114.57260631491442,
+      "address": "Gang Indera Jaya, Kuin Cerucuk, West Banjarmasin, Banjarmasin, South Kalimantan, Kalimantan, 70129, Indonesia"
+    },
+    "timestamp": "2026-04-15T03:12:27.154Z"
+  },
+  {
+    "id": 1776222747206,
+    "username": "gavin",
+    "avatar": "GA",
+    "type": "location",
+    "location": {
+      "lat": -3.29707386797066,
+      "lng": 114.57260631491442,
+      "address": "Gang Indera Jaya, Kuin Cerucuk, West Banjarmasin, Banjarmasin, South Kalimantan, Kalimantan, 70129, Indonesia"
+    },
+    "timestamp": "2026-04-15T03:12:27.206Z"
+  }
+]
