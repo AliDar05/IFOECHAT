@@ -51,6 +51,7 @@ const joinRoomBtn   = $('join-room-btn');
 const sidebar          = $('sidebar');
 const sidebarBackdrop  = $('sidebar-backdrop');
 const sidebarToggle    = $('sidebar-toggle');
+const sidebarCloseBtn  = $('sidebar-close-btn');
 const sidebarRoomName  = $('sidebar-room-name');
 const sidebarRoomCode  = $('sidebar-room-code');
 const sidebarUsername  = $('sidebar-username');
@@ -189,6 +190,12 @@ function goToChatScreen() {
   headerUsername.textContent   = myUsername;
   makeAvatar(headerAvatar,   myUsername);
   showScreen('chat');
+  // Di mobile: sidebar selalu mulai tersembunyi supaya tombol toggle kelihatan
+  if (window.innerWidth <= 640) {
+    sidebar.classList.remove('open');
+    sidebar.classList.add('collapsed');
+    sidebarBackdrop.classList.remove('visible');
+  }
   setTimeout(() => messageInput.focus(), 100);
 }
 
@@ -371,19 +378,33 @@ leaveModal?.addEventListener('click', e => {
 // SIDEBAR TOGGLE — works on ALL screen sizes
 // ══════════════════════════════════════════════════════════════════
 function openSidebar() {
-  sidebar.classList.remove('collapsed');
-  if (window.innerWidth <= 640) sidebarBackdrop.classList.add('visible');
+  if (window.innerWidth <= 640) {
+    sidebar.classList.add('open');
+    sidebar.classList.remove('collapsed');
+    sidebarBackdrop.classList.add('visible');
+  } else {
+    sidebar.classList.remove('collapsed');
+  }
 }
 function closeSidebar() {
-  sidebar.classList.add('collapsed');
+  if (window.innerWidth <= 640) {
+    sidebar.classList.remove('open');
+    sidebar.classList.add('collapsed');
+  } else {
+    sidebar.classList.add('collapsed');
+  }
   sidebarBackdrop.classList.remove('visible');
 }
 function isSidebarOpen() {
+  if (window.innerWidth <= 640) {
+    return sidebar.classList.contains('open');
+  }
   return !sidebar.classList.contains('collapsed');
 }
 sidebarToggle.addEventListener('click', () => {
   isSidebarOpen() ? closeSidebar() : openSidebar();
 });
+sidebarCloseBtn?.addEventListener('click', closeSidebar);
 sidebarBackdrop.addEventListener('click', closeSidebar);
 window.addEventListener('resize', () => {
   if (window.innerWidth > 640) sidebarBackdrop.classList.remove('visible');

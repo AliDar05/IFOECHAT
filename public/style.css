@@ -549,8 +549,32 @@ html, body {
   height: var(--header-h);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+}
+
+/* Close button inside sidebar — hanya tampil di mobile */
+.sidebar-close-btn {
+  display: none;
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.sidebar-close-btn:hover {
+  color: var(--danger);
+  border-color: rgba(255,68,68,0.3);
+  background: var(--danger-bg);
+}
+@media (max-width: 640px) {
+  .sidebar-close-btn { display: flex; }
 }
 .sidebar-brand {
   display: flex;
@@ -789,7 +813,12 @@ html, body {
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   position: relative;
-  z-index: 5;
+  z-index: 110;
+}
+/* Pastikan tombol toggle selalu kelihatan di atas sidebar mobile */
+#sidebar-toggle {
+  position: relative;
+  z-index: 111;
 }
 #chat-header::after {
   content: '';
@@ -1575,6 +1604,7 @@ html, body {
   z-index: 99;
   backdrop-filter: blur(2px);
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.25s ease;
 }
 #sidebar-backdrop.visible { opacity: 1; pointer-events: all; }
@@ -1618,21 +1648,24 @@ html, body {
     --max-bubble-w: 84%;
     --header-h: 56px;
   }
-  #sidebar {
-    position: fixed;
-    top: 0; left: 0;
-    height: 100%;
-    z-index: 100;
-    box-shadow: 8px 0 40px rgba(0,0,0,0.5);
-    transform: translateX(0);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Room screen scrollable di mobile */
+  #room-screen {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 16px 0;
   }
-  #sidebar.collapsed {
-    transform: translateX(-100%);
-    pointer-events: none;
-  }
-  #sidebar-backdrop { display: block; }
   .auth-container { padding: 28px 22px; }
+  .room-container {
+    max-width: 100% !important;
+    padding: 24px 16px !important;
+    margin: 0 12px !important;
+    border-radius: 16px !important;
+  }
+  .room-header {
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
   .room-options { grid-template-columns: 1fr; gap: 16px; }
   .room-divider { flex-direction: row; gap: 12px; }
   .room-divider::before, .room-divider::after {
@@ -1644,6 +1677,7 @@ html, body {
   }
   .room-divider span { white-space: nowrap; }
   #messages-container { padding: 12px 10px 6px; }
+  #sidebar-backdrop { display: block; pointer-events: none; }
 }
 
 @media (max-width: 380px) {
@@ -1891,6 +1925,13 @@ html, body {
     height: 100%;
     z-index: 100;
     box-shadow: 8px 0 40px rgba(0,0,0,0.5);
+    /* Default: tersembunyi di mobile, buka via toggle */
+    transform: translateX(-100%);
+    pointer-events: none;
+  }
+  #sidebar.open {
+    transform: translateX(0);
+    pointer-events: all;
   }
   #sidebar.collapsed {
     transform: translateX(-100%);
