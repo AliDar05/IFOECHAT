@@ -33,60 +33,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); overflow: hidden; }
 
-    /* ── LOGIN SCREEN ── */
-    #admin-login {
-      position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-      background: var(--bg);
-      z-index: 100;
-    }
-    #admin-login.hidden { display: none; }
-    .login-box {
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: 20px;
-      padding: 40px;
-      width: 360px;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-    }
-    .login-brand {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 28px;
-    }
-    .login-brand-icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      color: #fff;
-    }
-    .login-brand-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
-    .login-brand-badge {
-      margin-left: auto;
-      font-size: 10px; font-weight: 700; letter-spacing: 1px;
-      color: var(--warning); border: 1px solid var(--warning);
-      padding: 2px 7px; border-radius: 20px;
-      font-family: var(--font-mono);
-    }
-    .login-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-    .login-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
-    .form-row { margin-bottom: 14px; }
-    .form-row label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.4px; }
-    .form-row input {
-      width: 100%; background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: var(--radius-sm); padding: 10px 14px;
-      font-family: var(--font); font-size: 14px; color: var(--text);
-      outline: none; transition: border 0.2s;
-    }
-    .form-row input:focus { border-color: var(--accent); }
-    .login-error { font-size: 12px; color: var(--danger); margin-bottom: 12px; min-height: 18px; }
-    .btn-login {
-      width: 100%; padding: 11px; border: none; border-radius: var(--radius-sm);
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #fff; font-family: var(--font); font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: opacity 0.2s; letter-spacing: 0.3px;
-    }
-    .btn-login:hover { opacity: 0.88; }
-    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
-
     /* ── DASHBOARD LAYOUT ── */
     #admin-app {
       display: flex; height: 100vh;
@@ -394,31 +340,6 @@
   </style>
 </head>
 <body>
-
-<!-- ══ LOGIN ══════════════════════════════════════════════════════ -->
-<div id="admin-login">
-  <div class="login-box">
-    <div class="login-brand">
-      <div class="login-brand-icon">
-        <svg width="16" height="16" viewBox="0 0 28 28" fill="none"><path d="M4 8C4 5.79 5.79 4 8 4H20C22.21 4 24 5.79 24 8V16C24 18.21 22.21 20 20 20H16L12 24L8 20H8C5.79 20 4 18.21 4 16V8Z" fill="currentColor"/></svg>
-      </div>
-      <span class="login-brand-text">IFOE-CHAT</span>
-      <span class="login-brand-badge">ADMIN</span>
-    </div>
-    <div class="login-title">Admin Panel</div>
-    <div class="login-sub">Masuk dengan kredensial admin untuk mengelola sistem</div>
-    <div class="form-row">
-      <label>Username Admin</label>
-      <input id="admin-username" type="text" placeholder="admin" autocomplete="username" />
-    </div>
-    <div class="form-row">
-      <label>Password</label>
-      <input id="admin-password" type="password" placeholder="••••••••" autocomplete="current-password" />
-    </div>
-    <div class="login-error" id="login-err"></div>
-    <button class="btn-login" id="admin-login-btn" onclick="adminLogin()">Masuk sebagai Admin</button>
-  </div>
-</div>
 
 <!-- ══ APP ════════════════════════════════════════════════════════ -->
 <div id="admin-app" class="hidden">
@@ -744,8 +665,9 @@
 // ══════════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════════
-let adminToken = sessionStorage.getItem('admin_token') || '';
-let adminUsername = sessionStorage.getItem('admin_username') || '';
+// STATE
+let adminToken = sessionStorage.getItem('admin_token') || localStorage.getItem('adminToken') || '';
+let adminUsername = sessionStorage.getItem('admin_username') || localStorage.getItem('username') || '';
 let allUsers = [];
 let allRooms = [];
 
@@ -754,9 +676,14 @@ let allRooms = [];
 // ══════════════════════════════════════════════════════════════════
 window.onload = () => {
   if (adminToken) {
+    // Simpan ke sessionStorage jika datang dari localStorage
+    sessionStorage.setItem('admin_token', adminToken);
+    sessionStorage.setItem('admin_username', adminUsername);
     showApp();
+  } else {
+    // Tidak ada token, redirect balik ke halaman utama
+    window.location.href = '/index.html';
   }
-  // Enter key on login
   document.getElementById('admin-password').addEventListener('keydown', e => {
     if (e.key === 'Enter') adminLogin();
   });
@@ -765,33 +692,6 @@ window.onload = () => {
 // ══════════════════════════════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════════════════════════════
-async function adminLogin() {
-  const username = document.getElementById('admin-username').value.trim();
-  const password = document.getElementById('admin-password').value;
-  const errEl = document.getElementById('login-err');
-  const btn = document.getElementById('admin-login-btn');
-  errEl.textContent = '';
-  btn.disabled = true; btn.textContent = 'Memverifikasi...';
-
-  try {
-    const res = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error || 'Login gagal'; return; }
-    adminToken = data.token;
-    adminUsername = data.username;
-    sessionStorage.setItem('admin_token', adminToken);
-    sessionStorage.setItem('admin_username', adminUsername);
-    showApp();
-  } catch (e) {
-    errEl.textContent = 'Koneksi gagal. Coba lagi.';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Masuk sebagai Admin';
-  }
-}
 
 function adminLogout() {
   sessionStorage.removeItem('admin_token');
