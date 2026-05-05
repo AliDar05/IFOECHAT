@@ -675,18 +675,17 @@ let allRooms = [];
 // INIT
 // ══════════════════════════════════════════════════════════════════
 window.onload = () => {
-  if (adminToken) {
-    // Simpan ke sessionStorage jika datang dari localStorage
-    sessionStorage.setItem('admin_token', adminToken);
-    sessionStorage.setItem('admin_username', adminUsername);
-    showApp();
-  } else {
-    // Tidak ada token, redirect balik ke halaman utama
+  adminToken = sessionStorage.getItem('admin_token') || localStorage.getItem('adminToken') || '';
+  adminUsername = sessionStorage.getItem('admin_username') || localStorage.getItem('username') || '';
+
+  if (!adminToken) {
     window.location.href = '/index.html';
+    return;
   }
-  document.getElementById('admin-password').addEventListener('keydown', e => {
-    if (e.key === 'Enter') adminLogin();
-  });
+
+  sessionStorage.setItem('admin_token', adminToken);
+  sessionStorage.setItem('admin_username', adminUsername);
+  showApp();
 };
 
 // ══════════════════════════════════════════════════════════════════
@@ -696,9 +695,10 @@ window.onload = () => {
 function adminLogout() {
   sessionStorage.removeItem('admin_token');
   sessionStorage.removeItem('admin_username');
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('username');
   adminToken = ''; adminUsername = '';
-  document.getElementById('admin-app').classList.add('hidden');
-  document.getElementById('admin-login').classList.remove('hidden');
+  window.location.href = '/index.html';
 }
 
 function showApp() {
