@@ -237,6 +237,14 @@ async function doLogin() {
     const d = await r.json();
     if (!r.ok) { showError(loginError, d.error); return; }
     myUsername = d.username; myAvatar = d.avatar; myToken = d.token;
+
+    // Cek apakah admin → redirect ke admin.html
+    if (d.isAdmin) {
+      localStorage.setItem('adminToken', d.token);
+      window.location.href = '/admin.html';
+      return;
+    }
+
     saveSession(); goToRoomScreen();
   } catch { showError(loginError, 'Koneksi gagal.'); }
   finally { setLoading(loginBtn, false); }

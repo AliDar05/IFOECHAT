@@ -127,27 +127,41 @@ function requireAdmin(req, res, next) {
 // ═════════════════════════════════════════════════════════════════
 
 // Register
-app.post("/api/register", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: "Username dan password wajib diisi" });
-    if (username.length < 3 || username.length > 20) return res.status(400).json({ error: "Username harus 3-20 karakter" });
-    if (password.length < 4) return res.status(400).json({ error: "Password minimal 4 karakter" });
 
-    const existing = await getUser(username);
-    if (existing) return res.status(400).json({ error: "Username sudah digunakan" });
+    const hashedPassword = hashPassword(password);
 
-    await saveUser(username, {
-      username,
-      password: hashPassword(password),
-      createdAt: new Date().toISOString(),
-      avatar: username.substring(0, 2).toUpperCase(),
-      banned: false,
-      suspendedUntil: null
-    });
-    res.json({ success: true, username });
+    // Cek apakah admin
+    const adminDoc = await db.collection("admins").doc(username.toLowerCase()).get();
+    if (adminDoc.exists) {
+      const admin = adminDoc.data();
+      if (admin.password !== hashedPassword) return res.status(401).json({ error: "Password salah" });
+
+      const token = crypto.randomBytes(32).toString("hex");
+      adminTokens.set(token, { username: admin.username });
+      return res.json({ success: true, username: admin.username, isAdmin: true, token });
+    }
+
+    // Cek user biasa
+    const user = await getUser(username);
+    if (!user) return res.status(401).json({ error: "Username tidak ditemukan" });
+    if (user.password !== hashedPassword) return res.status(401).json({ error: "Password salah" });
+
+    if (user.banned) return res.status(403).json({ error: "Akun ini telah di-banned. Hubungi admin." });
+
+    if (user.suspendedUntil && new Date(user.suspendedUntil) > new Date()) {
+      const until = new Date(user.suspendedUntil).toLocaleString("id-ID");
+      return res.status(403).json({ error: `Akun disuspend hingga ${until}.` });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    activeTokens.set(token, { username: user.username, avatar: user.avatar });
+    res.json({ success: true, username: user.username, avatar: user.avatar, isAdmin: false, token });
   } catch (err) {
-    console.error("Register error:", err);
+    console.error("Login error:", err);
     res.status(500).json({ error: "Terjadi kesalahan server" });
   }
 });
