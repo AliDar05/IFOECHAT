@@ -165,35 +165,6 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "Terjadi kesalahan server" });
   }
 });
-
-// Login — with ban/suspend check
-app.post("/api/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "Username dan password wajib diisi" });
-
-    const user = await getUser(username);
-    if (!user) return res.status(401).json({ error: "Username tidak ditemukan" });
-    if (user.password !== hashPassword(password)) return res.status(401).json({ error: "Password salah" });
-
-    // Check ban
-    if (user.banned) return res.status(403).json({ error: "Akun ini telah di-banned. Hubungi admin." });
-
-    // Check suspend
-    if (user.suspendedUntil && new Date(user.suspendedUntil) > new Date()) {
-      const until = new Date(user.suspendedUntil).toLocaleString("id-ID");
-      return res.status(403).json({ error: `Akun disuspend hingga ${until}.` });
-    }
-
-    const token = crypto.randomBytes(32).toString("hex");
-    activeTokens.set(token, { username: user.username, avatar: user.avatar });
-    res.json({ success: true, username: user.username, avatar: user.avatar, token });
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ error: "Terjadi kesalahan server" });
-  }
-});
-
 // Create Room
 app.post("/api/rooms/create", async (req, res) => {
   try {
