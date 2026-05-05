@@ -702,8 +702,8 @@ function adminLogout() {
 }
 
 function showApp() {
-  document.getElementById('admin-login').classList.add('hidden');
-  document.getElementById('admin-app').classList.remove('hidden');
+  const app = document.getElementById('admin-app');
+  if (app) app.classList.remove('hidden');
   const av = document.getElementById('sidebar-admin-av');
   av.textContent = adminUsername.substring(0, 2).toUpperCase();
   document.getElementById('sidebar-admin-name').textContent = adminUsername;
