@@ -127,6 +127,32 @@ function requireAdmin(req, res, next) {
 // ═════════════════════════════════════════════════════════════════
 
 // Register
+app.post("/api/register", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: "Username dan password wajib diisi" });
+    if (username.length < 3 || username.length > 20) return res.status(400).json({ error: "Username harus 3-20 karakter" });
+    if (password.length < 4) return res.status(400).json({ error: "Password minimal 4 karakter" });
+
+    const existing = await getUser(username);
+    if (existing) return res.status(400).json({ error: "Username sudah digunakan" });
+
+    await saveUser(username, {
+      username,
+      password: hashPassword(password),
+      createdAt: new Date().toISOString(),
+      avatar: username.substring(0, 2).toUpperCase(),
+      banned: false,
+      suspendedUntil: null
+    });
+    res.json({ success: true, username });
+  } catch (err) {
+    console.error("Register error:", err);
+    res.status(500).json({ error: "Terjadi kesalahan server" });
+  }
+});
+
+// Login
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
