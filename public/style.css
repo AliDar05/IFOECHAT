@@ -1048,7 +1048,8 @@ html, body {
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
-  max-width: 280px;
+  max-width: min(320px, 85vw);
+  width: 100%;
   transition: border-color var(--transition);
 }
 .file-bubble:hover { border-color: var(--border-accent); }
@@ -1060,8 +1061,10 @@ html, body {
 .bubble-img {
   display: block;
   width: 100%;
-  max-height: 240px;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  background: var(--bg-deep);
   border-radius: 14px 14px 0 0;
 }
 .bubble-img-caption {
@@ -1124,7 +1127,8 @@ html, body {
   border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
-  max-width: 280px;
+  max-width: min(320px, 85vw);
+  width: 100%;
   transition: border-color var(--transition);
 }
 .location-bubble:hover { border-color: var(--border-accent); }

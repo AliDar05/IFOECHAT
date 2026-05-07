@@ -447,22 +447,22 @@ function renderFilePreview() {
 
   pendingFiles.forEach((file, idx) => {
     const item = document.createElement('div');
-    item.className = 'file-preview-item';
+    item.className = 'preview-item';
 
     if (isImageFile(file.name)) {
       const img = document.createElement('img');
       img.src = URL.createObjectURL(file);
+      img.alt = file.name;
       item.appendChild(img);
     } else {
-      item.classList.add('doc-type');
-      item.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-hint)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <span class="fp-ext">${getFileExt(file.name)}</span>
-      `;
+      const iconBox = document.createElement('div');
+      iconBox.className = 'preview-file-icon';
+      iconBox.innerHTML = `<span>${getFileExt(file.name)}</span>`;
+      item.appendChild(iconBox);
     }
 
     const removeBtn = document.createElement('button');
-    removeBtn.className = 'fp-remove';
+    removeBtn.className = 'preview-remove';
     removeBtn.innerHTML = '×';
     removeBtn.onclick = () => {
       pendingFiles.splice(idx, 1);
